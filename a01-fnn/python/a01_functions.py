@@ -102,7 +102,7 @@ class MLP(nn.Module):
     def forward(self, x):
         # TODO: YOUR CODE HERE
         eta = x
-        if x.shape[0] == 1: # If input size 1 x D then eta = W.t() @ eta + b
+        if x.ndim == 1: # If input size 1 x D then eta = W.t() @ eta + b
             for i in range(self.num_layers()):
                 W = self.get_parameter(f"{i}_weight")
                 b = self.get_parameter(f"{i}_bias")

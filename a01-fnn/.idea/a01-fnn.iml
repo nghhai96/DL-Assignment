@@ -4,7 +4,6 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="jdk" jdkName="C:\Users\LENOVO\miniconda3\envs\dl-pi1" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Deep Learning" />
   </component>
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />
