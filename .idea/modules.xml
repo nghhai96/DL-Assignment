@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/Assignment.iml" filepath="$PROJECT_DIR$/.idea/Assignment.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../../../../../../GitHub/pi1-docker/shared/Deep Learning/.idea/Deep Learning.iml" filepath="$PROJECT_DIR$/../../../../../../../GitHub/pi1-docker/shared/Deep Learning/.idea/Deep Learning.iml" />
+    </modules>
+  </component>
+</project>
