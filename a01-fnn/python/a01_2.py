@@ -1,3 +1,4 @@
+# %%
 # ---
 # jupyter:
 #   jupytext:
@@ -30,7 +31,7 @@ from a01_functions import train1, MLP  # MLP is implicitly required for `torch.l
 # %% [markdown]
 # # 2 Multi-Layer Feed-Forward Neural Networks
 # ## 2a Conjecture how an FNN fit will look like
-
+# 
 # %%
 # here is the one-dimensional dataset that we will use
 nextplot()
@@ -43,7 +44,7 @@ saveplot("a01_2_data.pdf")
 
 # %% [markdown]
 # ## 2b Train with 2 hidden units
-
+# 
 # %%
 # Let's fit the model with one hidden layer consisting of 2 units.
 model = train1([2], nreps=1)
@@ -68,7 +69,19 @@ for par, value in model.state_dict().items():
 
 # %%
 # now repeat this multiple times
-# TODO: YOUR CODE HERE
+nrep = 10
+nextplot()
+plot1(X1, y1, label="train")
+plot1(X1test, y1test, label="test")
+for i in range(nrep):
+    model = train1([2], nreps=1)
+    print(f"Train iteration {i}: ")
+    print(f"Training error: {F.mse_loss(y1, model(X1)).item():.4}")
+    print(f"Test error    : {F.mse_loss(y1test, model(X1test)).item():.4}")
+    for par, value in model.state_dict().items():
+        print(f"{par:<15}= {value}")
+    plot1fit(torch.linspace(0, 13, 500).unsqueeze(1), model)
+saveplot("a01_2_fit-2-neurons-multi-iter.pdf")
 
 # %%
 # From now on, always train multiple times (nreps=10 by default) and report best model.
@@ -78,21 +91,70 @@ print("Test error    :", F.mse_loss(y1test, model(X1test)).item())
 
 # %% [markdown]
 # ## 2c Width
-
+# 
 # %%
 # Experiment with different hidden layer sizes. To avoid recomputing
 # models, you may want to save your models using torch.save(model, filename) and
 # load them again using torch.load(filename).
-# TODO: YOUR CODE HERE
+# Model Train
+# widths = [1, 2, 3, 10, 50, 100]
+#
+# for w in widths:
+#     model = train1([w], nreps=10)
+#     models[w] = model
+#     torch.save(model, f"model_width_{w}.pt")
+#     print(f"Hidden layer width: {w}")
+#     print("Training error:", F.mse_loss(y1, model(X1)).item())
+#     print("Test error    :", F.mse_loss(y1test, model(X1test)).item())
+# %%
+# No need to train again, load and use
+# Load Models and graph
+models = {}
+widths = [1, 2, 3, 10, 50, 100]
+for w in widths:
+    model = torch.load(f"model_width_{w}.pt")
+    models[w] = model
 
+nextplot()
+plot1(X1, y1, label="train")
+plot1(X1test, y1test, label="test")
+
+Xplot = torch.linspace(0, 13, 500).unsqueeze(1)
+for w, model in models.items():
+    plot1fit(Xplot, model, label=f"fit (m={w})")
+
+# Label fix
+ax = plt.gca()
+handles, labels = ax.get_legend_handles_labels()
+
+seen = set()
+new_handles = []
+new_labels = []
+for h, l in zip(handles, labels):
+    if l not in seen:
+        new_handles.append(h)
+        new_labels.append(l)
+        seen.add(l)
+
+ax.legend(new_handles, new_labels,
+          loc="center left",
+          bbox_to_anchor=(1.02, 0.5),
+          fontsize=15,
+          labelspacing=0.4,
+          borderpad=0.4,
+          handlelength=1.8)
+
+plt.ylim(-2, 2)
+saveplot("a01_2_c_fit-n-neurons.pdf")
 # %% [markdown]
 # ## 2d Distributed representations
-
+# 
 # %%
 # train a model to analyze
-model = train1([2])
+model = train1([10])
+for par, value in model.state_dict().items():
+        print(f"{par:<15}= {value}")
 
-# TODO: YOUR CODE HERE
 
 # %%
 # plot the fit as well as the outputs of each neuron in the hidden
@@ -101,7 +163,7 @@ nextplot()
 plot1(X1, y1, label="train")
 plot1(X1test, y1test, label="test")
 plot1fit(torch.linspace(0, 13, 500).unsqueeze(1), model, hidden=True, scale=False)
-saveplot("a01_2_distributed-reps.pdf")
+saveplot("a01_2_distributed-reps-n10.pdf")
 
 # %%
 # plot the fit as well as the outputs of each neuron in the hidden layer, scaled
@@ -114,11 +176,11 @@ plot1(X1test, y1test, label="test")
 plot1fit(torch.linspace(0, 13, 500).unsqueeze(1), model, hidden=True, scale=True)
 plt.legend(loc="upper right")
 plt.tight_layout()
-saveplot("a01_2_distributed-reps-scaled.pdf")
+saveplot("a01_2_distributed-reps-scaled-n10.pdf")
 
 # %% [markdown]
 # ## 2e Experiment with different optimizers (optional)
-
+# 
 # %%
 # PyTorch provides many gradient-based optimizers; see
 # https://pytorch.org/docs/stable/optim.html. You can use a PyTorch optimizer

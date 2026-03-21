@@ -1,3 +1,4 @@
+# %%
 # ---
 # jupyter:
 #   jupytext:
@@ -30,7 +31,7 @@ from a01_functions import train1
 
 # %% [markdown]
 # # 3 Backpropagation
-
+# 
 # %%
 # Let's fit the model with one hidden layer consisting of 50 units.
 model = train1([50], nreps=1)
@@ -46,7 +47,7 @@ b2 = pars["1_bias"].data  # 1
 
 # %% [markdown]
 # ## 3a Forward pass
-
+# 
 # %%
 # Compute results of forward pass on an example x (i.e., z1, z2, z3, z4, yhat, l) using Pytorch
 x = X1test[1, :]
@@ -56,17 +57,39 @@ print(f"x={x}, y={y}, yhat={model(x).detach()}, l={torch.nn.MSELoss()(y, model(x
 # %%
 # Now do this by hand (including all intermediate values). You should get the same
 # results as above.
+#Ensuring Shape Consistency
+W1 = W1.view(1,-1)
+W2 = W2.view(-1,1)
+b1 = b1.view(-1,1)
+b2 = b2.view(1,1)
 
-# TODO: YOUR CODE HERE
-
+#Forward Pass
+z1 = (W1.t() @ x).view(-1,1) #[50,1]
+z2 = z1 + b1 #[50,1]
+z3 = torch.sigmoid(z2).view(-1,1) #[50,1]
+z4 = W2.t() @ z3 #[1,1] scalar
+y_hat = z4 + b2
+l = (y_hat-y)**2
+print(x,y,y_hat,l)
 # %% [markdown]
 # ## 3b Backward pass
-
+# 
 # %%
 # Compute results of backward pass on example output (i.e., delta_x, delta_W1, delta_z1,
 # delta_b1, delta_z2, delta_z3, delta_W2, delta_z4, delta_b2, delta_yhat, delta_l, delta_y)
-## TODO: YOUR CODE HERE
-
+##
+delta_l = 1
+delta_y = -2 * (y_hat-y) * delta_l
+delta_yhat = 2 * (y_hat-y) * delta_l
+delta_b2 = delta_yhat
+delta_z4 = delta_yhat
+delta_W2 = z3 * delta_z4
+delta_z3 = W2 * delta_z4
+delta_z2 = z3 * (1-z3) * delta_z3
+delta_b1 = delta_z2.squeeze()
+delta_z1 = delta_z2
+delta_W1 = x.view(1,1) @ delta_z1.t()
+delta_x = W1 @ delta_z1
 # %%
 # Use PyTorch's backprop
 x.requires_grad = True
