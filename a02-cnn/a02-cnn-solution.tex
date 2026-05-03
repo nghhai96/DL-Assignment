@@ -1,0 +1,142 @@
+% Do not change document class, margins, fonts, etc.
+\documentclass[a4paper,oneside,bibliography=totoc]{scrartcl}
+
+% some useful packages (add more as needed)
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{algorithm} % you can modify the algorithm style to your liking
+\usepackage{algorithmic}
+\usepackage{csquotes}
+\renewcommand{\algorithmiccomment}[1]{\hfill\textit{// #1}}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage[colorlinks,citecolor=Green]{hyperref} % you may change/remove the colors
+\usepackage{lipsum} % you do not need this
+\usepackage{environ}
+\usepackage{numprint}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.gates.logic.US,shapes.gates.logic.IEC,automata,arrows, backgrounds}
+\usepackage{natbib}
+\bibliographystyle{chicagoa}
+\setcitestyle{authoryear,round,semicolon,aysep={},yysep={,}} \let\cite\citep
+
+% example environments and commands (add more as needed)
+\newtheorem{definition}{Definition} \newtheorem{proposition}{Proposition}
+
+\newcommand\todo[1]{\textcolor{red}{\framebox{\footnotesize TODO}\expandafter\ifx\expandafter\relax\detokenize{#1}\relax\else\ #1\fi}}
+
+
+% DO NOT MODIFY
+\newlength\oldparskip
+\NewEnviron{answer}[1][8cm]{%
+  \sbox{0}{\parbox[t][#1][t]{0.99\linewidth}{%
+      \setlength{\oldparskip}{\parskip}%
+      \setlength{\parskip}{.5em}%
+      \BODY%
+      ~%
+      \setlength{\parskip}{\oldparskip}%
+    }}%
+
+  \begin{tikzpicture}
+    % inner sep restores the \fbox padding
+    \node[inner sep=\fboxsep, outer sep=0pt] (A) {\usebox{0}};
+    % border thickness like \fboxrule
+    \draw[line width=\fboxrule] (A.south west) rectangle (A.north east);
+  \end{tikzpicture}%
+  \vskip\baselineskip
+}
+
+
+\begin{document}
+
+\title{DL26, Assignment 2}
+\author{\todo{Student 1 name (login, matriculation number)}\\
+	\todo{Student 2 name (login, matriculation number)}}
+\date{\today}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Task 2. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Task 2a)}
+\begin{answer}[8cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 2c)}
+\begin{answer}[16cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 2d): i), ii), and iii)}
+\begin{answer}[12cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 2e)}
+\begin{answer}[7cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 2f)}
+\begin{answer}[4cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 2h)}
+\begin{answer}[4cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 2i)}
+\begin{answer}[6cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Task 3. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Task 3c)}
+\begin{answer}[4cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 3d)}
+\begin{answer}[19cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 3e)}
+\begin{answer}[19cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+\section*{Task 3f)}
+\begin{answer}[19cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Task 4. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Task 4)}
+\begin{answer}[19cm]
+	% YOUR ANSWER HERE
+\end{answer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% AI Declaration. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\clearpage
+\input{ai-declaration.tex}
+
+\end{document}
