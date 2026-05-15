@@ -107,7 +107,10 @@ trainer = Trainer(
 )
 
 trainer.fit(model, datamodule=dm)
-trainer.callback_metrics
+print("Task 5c train/validation metrics:")
+print(trainer.callback_metrics)
+print("Task 5c test metrics:")
+print(trainer.test(model, datamodule=dm))
 
 # %%
 # Plot t-SNE embeddings of the thought vectors for training data
@@ -146,7 +149,10 @@ trainer_pf = Trainer(
 )
 
 trainer_pf.fit(model_pf, datamodule=dm)
+print("Task 5d train/validation metrics:")
 print(trainer_pf.callback_metrics)
+print("Task 5d test metrics:")
+print(trainer_pf.test(model_pf, datamodule=dm))
 
 # Plot t-SNE embeddings of the thought vectors for training data.
 dm.setup("fit")
@@ -180,7 +186,10 @@ trainer_p = Trainer(
 )
 
 trainer_p.fit(model_p, datamodule=dm)
+print("Task 5e train/validation metrics:")
 print(trainer_p.callback_metrics)
+print("Task 5e test metrics:")
+print(trainer_p.test(model_p, datamodule=dm))
 
 # Plot t-SNE embeddings of the thought vectors for training data.
 dm.setup("fit")
