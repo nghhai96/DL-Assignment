@@ -196,10 +196,22 @@ class SimpleLSTM(nn.Module):
 
         # YOUR CODE HERE
         # Note: Use the following attributes to store the required layers.
-        self.embedding = ...
-        self.lstm = ...
-        self.fc = ...
-        self.sigmoid = ...
+        self.embedding = nn.Embedding(
+            num_embeddings=vocab_size,
+            embedding_dim=embedding_dim
+        )
+        self.lstm = nn.LSTM(
+            input_size=embedding_dim,
+            hidden_size=hidden_dim,
+            num_layers=num_layers,
+            batch_first= True,
+            dropout=cell_dropout,
+        )
+        self.fc = nn.Linear(
+            in_features=hidden_dim,
+            out_features=1
+        )
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         """
@@ -217,6 +229,13 @@ class SimpleLSTM(nn.Module):
         hidden = self.init_hidden(len(x))
 
         # YOUR CODE HERE
+        embedded = self.embedding(x)
+        _, (final_hiddens, final_memory) = self.lstm(embedded, hidden)
+
+        thought_vector = final_hiddens[-1] # final hidden of final layer
+        probs = self.sigmoid(self.fc(thought_vector))
+
+        return (probs, thought_vector)
 
     def init_hidden(self, batch_size):
         """Initialize hidden states.
@@ -225,9 +244,17 @@ class SimpleLSTM(nn.Module):
         initial cell states, one for initial hidden states) consisting of all zeros.
         """
         # YOUR CODE HERE
+        device = next(self.parameters()).device
+        initial_hidden_state = torch.zeros(
+            self.num_layers, batch_size, self.hidden_dim, device=device
+        )
+        initial_cell_state = torch.zeros(
+            self.num_layers, batch_size, self.hidden_dim, device=device
+        )
+        return (initial_hidden_state, initial_cell_state)
+
         # Note: ensure that the returned tensors are located on the same device
         # as the model's parameters.
-        pass
 
 
 # %% [markdown]
@@ -257,23 +284,24 @@ class LitSimpleLSTM(LightningModule):
         # Return an optimizer for the parameters which require gradients (cf.
         # pre-training task).
         # Note: Use self.lr as the learning rate.
-        pass
+        parameters = filter(lambda p: p.requires_grad, self.model.parameters())
+        return torch.optim.Adam(parameters, lr=self.lr)
 
     def forward(self, inputs):
         # YOUR CODE HERE
         # Compute and return the model's outputs given the inputs.
-        pass
+        return self.model(inputs)
 
     def training_step(self, batch, _):
         reviews, labels = batch
-
-        output = ...
-        loss = ...
 
         # YOUR CODE HERE
         # Forward pass: Compute the model's output, reshape it to a vector, and
         # then compute the (binary) cross-entropy.
         # Use self.loss_fn to compute the loss.
+        output, _ = self(reviews)
+        labels = labels.float().view(-1, 1)
+        loss = self.loss_fn(output, labels)
 
         # YOUR CODE HERE
         # Logging: Log the loss per step and the accuracy per epoch.
@@ -282,9 +310,15 @@ class LitSimpleLSTM(LightningModule):
         #
         # Hint: It is often helpful to put one (or both) of these
         # metrics into the progress bar.
+        predictions = (output >= 0.5).float()
+        accuracy = (predictions == labels).float().mean()
+
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("train_acc", accuracy, on_step=False, on_epoch=True, prog_bar=True)
 
         # YOUR CODE HERE
         # Return the loss and let lightning handle backprop automatically.
+        return loss
 
     def validation_step(self, batch, _):
         return self._eval(batch, "val")
@@ -295,16 +329,22 @@ class LitSimpleLSTM(LightningModule):
     def _eval(self, batch, eval_type):
         reviews, labels = batch
 
-        output = ...
-        loss = ...
-
         # YOUR CODE HERE
         # Implement the forward pass (similar to the training step).
+        output, _ = self(reviews)
+        labels = labels.float().view(-1, 1)
+        loss = self.loss_fn(output, labels)
 
         # YOUR CODE HERE
         # Logging: Log the loss and the accuracy per epoch. It is often
         # helpful to put one (or both) of these metrics into the progress bar.
         # Use `eval_type` to distinguish between validation and test metrics.
+        predictions = (output >= 0.5).float()
+        accuracy = (predictions == labels).float().mean()
+        self.log(f"{eval_type}_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log(f"{eval_type}_acc", accuracy, on_step=False, on_epoch=True, prog_bar=True)
+
+        return loss
 
 
 # %%
@@ -324,22 +364,51 @@ class ReviewsDataModule(LightningDataModule):
         # Note: You can ignore the `stage` parameter in this task (but read
         # about its purpose in the documentation).
         #
-        pass
+        n = len(self.dataset)
+        n_train = int(n * 0.8)
+        n_val = int(n * 0.1)
+        n_test = n - n_train - n_val
+
+        #split
+        self.train_set, self.val_set, self.test_set = random_split(
+            self.dataset,
+            [n_train, n_val, n_test],
+            generator=torch.Generator().manual_seed(SEED),
+        )
+
 
     def train_dataloader(self):
         # YOUR CODE HERE
         # Return a data loader for the train set with your reviews_collate_fn of task 2.
         # Make sure that the data is shuffled before every epoch.
-        pass
+        train_set = DataLoader(
+            self.train_set,
+            batch_size = BATCH_SIZE,
+            shuffle = True,
+            collate_fn=review_collate_fn,
+        )
+        return train_set
 
     def val_dataloader(self):
         # YOUR CODE HERE
         # Return a data loader for the validation set with  your reviews_collate_fn of task 2.
         # No need to shuffle.
-        pass
+        val_set = DataLoader(
+            self.val_set,
+            batch_size=BATCH_SIZE,
+            shuffle=False,
+            collate_fn=review_collate_fn,
+        )
+        return val_set
 
     def test_dataloader(self):
         # YOUR CODE HERE
         # Return a data loader for the test set with your reviews_collate_fn of task 2.
         # No need to shuffle.
-        pass
+        test_set = DataLoader(
+            self.test_set,
+            batch_size=BATCH_SIZE,
+            shuffle=False,
+            collate_fn=review_collate_fn,
+        )
+        return test_set

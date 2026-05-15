@@ -52,15 +52,33 @@ glove_embeddings(torch.tensor(vocab["movie"], device=DEVICE))
 # Plot embeddings of first 100 words using t-SNE
 nextplot()
 _ = tsne_vocab(glove_embeddings, torch.arange(100), vocab)
+plt.gcf().savefig("task5b_glove_tsne_first100_labeled.png", dpi=300, bbox_inches="tight")
 
 # %%
 # You can also specify colors and/or drop the item labels
 nextplot()
 _ = tsne_vocab(glove_embeddings, torch.arange(100), colors=[0] * 50 + [1] * 50)
+plt.gcf().savefig("task5b_glove_tsne_first100_colored.png", dpi=300, bbox_inches="tight")
 
 # %%
-# YOUR CODE HERE
-# Note: you can obtain the embeddings tensor using glove_embeddings.weight.data
+# Explore the same first 100 embeddings with cosine similarities.
+import torch.nn.functional as F
+
+token_ids = torch.arange(100, device=DEVICE)
+embeddings = glove_embeddings.weight.data[token_ids]
+embeddings = F.normalize(embeddings, dim=1)
+similarities = embeddings @ embeddings.T
+token_labels = [vocab.get_itos()[idx] for idx in token_ids.cpu().tolist()]
+
+plt.figure(figsize=(14, 12))
+plt.imshow(similarities.cpu(), cmap="coolwarm", vmin=-1, vmax=1)
+plt.colorbar(label="Cosine similarity")
+plt.xticks(range(len(token_labels)), token_labels, rotation=90, fontsize=6)
+plt.yticks(range(len(token_labels)), token_labels, fontsize=6)
+plt.title("Cosine similarity matrix for first 100 vocabulary embeddings")
+plt.tight_layout()
+plt.savefig("task5b_glove_cosine_first100.png", dpi=300, bbox_inches="tight")
+plt.show()
 
 # %% [markdown]
 # ### Task 5c
@@ -78,8 +96,18 @@ cell_dropout = 0.0
 model = LitSimpleLSTM(vocab_size, embedding_dim, hidden_dim, num_layers, cell_dropout)
 dataset = ReviewsDataset(use_vocab=True)
 dm = ReviewsDataModule(dataset)
-# TODO: Your code here
+
 # Train a plain model so that it reaches a train accuracy of >0.9.
+logger = TensorBoardLogger("logs", name="task5c_plain_lstm")
+trainer = Trainer(
+    max_epochs=n_epochs,
+    gradient_clip_val=3,
+    check_val_every_n_epoch=1,
+    logger=logger,
+)
+
+trainer.fit(model, datamodule=dm)
+trainer.callback_metrics
 
 # %%
 # Plot t-SNE embeddings of the thought vectors for training data
@@ -88,6 +116,7 @@ dm.setup("fit")
 train_loader = dm.train_dataloader()
 nextplot()
 _ = tsne_thought(model, train_loader, DEVICE)
+plt.gcf().savefig("task5c_plain_train_thought_tsne.png", dpi=300, bbox_inches="tight")
 
 # %%
 # Plot t-SNE embeddings of of the thought vectors for validation data
@@ -95,6 +124,7 @@ dm.setup("fit")
 val_loader = dm.val_dataloader()
 nextplot()
 _ = tsne_thought(model, val_loader, DEVICE)
+plt.gcf().savefig("task5c_plain_val_thought_tsne.png", dpi=300, bbox_inches="tight")
 
 # %% [markdown]
 # ### Task 5d
@@ -106,7 +136,30 @@ model_pf = LitSimpleLSTM(
     vocab_size, embedding_dim, hidden_dim, num_layers, cell_dropout
 )
 reviews_load_embeddings(model_pf.model.embedding, vocab.get_stoi())
-# TODO: Your code here
+
+logger_pf = TensorBoardLogger("logs", name="task5d_glove_finetune")
+trainer_pf = Trainer(
+    max_epochs=n_epochs,
+    gradient_clip_val=3,
+    check_val_every_n_epoch=1,
+    logger=logger_pf,
+)
+
+trainer_pf.fit(model_pf, datamodule=dm)
+print(trainer_pf.callback_metrics)
+
+# Plot t-SNE embeddings of the thought vectors for training data.
+dm.setup("fit")
+train_loader = dm.train_dataloader()
+nextplot()
+_ = tsne_thought(model_pf, train_loader, DEVICE)
+plt.gcf().savefig("task5d_glove_finetune_train_thought_tsne.png", dpi=300, bbox_inches="tight")
+
+# Plot t-SNE embeddings of the thought vectors for validation data.
+val_loader = dm.val_dataloader()
+nextplot()
+_ = tsne_thought(model_pf, val_loader, DEVICE)
+plt.gcf().savefig("task5d_glove_finetune_val_thought_tsne.png", dpi=300, bbox_inches="tight")
 
 # %% [markdown]
 # ### Task 5e
@@ -117,4 +170,27 @@ reviews_load_embeddings(model_pf.model.embedding, vocab.get_stoi())
 model_p = LitSimpleLSTM(vocab_size, embedding_dim, hidden_dim, num_layers, cell_dropout)
 reviews_load_embeddings(model_p.model.embedding, vocab.get_stoi())
 model_p.model.embedding.weight.requires_grad = False
-# TODO: Your code here
+
+logger_p = TensorBoardLogger("logs", name="task5e_glove_frozen")
+trainer_p = Trainer(
+    max_epochs=n_epochs,
+    gradient_clip_val=3,
+    check_val_every_n_epoch=1,
+    logger=logger_p,
+)
+
+trainer_p.fit(model_p, datamodule=dm)
+print(trainer_p.callback_metrics)
+
+# Plot t-SNE embeddings of the thought vectors for training data.
+dm.setup("fit")
+train_loader = dm.train_dataloader()
+nextplot()
+_ = tsne_thought(model_p, train_loader, DEVICE)
+plt.gcf().savefig("task5e_glove_frozen_train_thought_tsne.png", dpi=300, bbox_inches="tight")
+
+# Plot t-SNE embeddings of the thought vectors for validation data.
+val_loader = dm.val_dataloader()
+nextplot()
+_ = tsne_thought(model_p, val_loader, DEVICE)
+plt.gcf().savefig("task5e_glove_frozen_val_thought_tsne.png", dpi=300, bbox_inches="tight")

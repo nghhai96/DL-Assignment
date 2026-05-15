@@ -66,7 +66,18 @@
 
 \section*{Task 2c)}
 \begin{answer}[6cm]
-	% YOUR ANSWER HERE
+	A dataset represents the examples and defines how to access one item at a
+	time. Here, \texttt{ReviewsDataset} stores the preprocessed reviews and
+	labels; with the vocabulary enabled, one item is a sequence of token ids
+	and its binary label.
+
+	A data loader defines how these items are supplied to the model. It iterates
+	over the dataset, forms mini-batches, optionally shuffles the training data,
+	and applies the \texttt{collate\_fn}. In this assignment the collate
+	function pads short reviews with token id 0 and truncates long reviews, so
+	each batch has shape \texttt{batch\_size} $\times$
+	\texttt{MAX\_SEQ\_LEN} plus a label vector of length
+	\texttt{batch\_size}.
 \end{answer}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,7 +86,36 @@
 
 \section*{Task 4i)}
 \begin{answer}[12cm]
-	% YOUR ANSWER HERE
+	Two advantages of Lightning are:
+
+	\begin{itemize}
+		\item It removes much of the repetitive training-loop code. Instead of
+		      manually writing the epoch loop, batch loop, optimizer step,
+		      validation loop, and test loop, we only define the relevant hooks
+		      such as \texttt{training\_step}, \texttt{validation\_step},
+		      \texttt{test\_step}, and \texttt{configure\_optimizers}. The
+		      \texttt{Trainer} then handles the loop structure.
+		\item Logging and training utilities are easier to attach. Metrics such
+		      as loss and accuracy can be logged with \texttt{self.log}, and
+		      tools such as TensorBoard logging, early stopping, checkpointing,
+		      and device handling can be configured through the
+		      \texttt{Trainer} instead of being implemented manually.
+	\end{itemize}
+
+	Two disadvantages are:
+
+	\begin{itemize}
+		\item Lightning hides part of the execution flow. This makes the code
+		      shorter, but debugging can be less direct because the forward
+		      pass, loss computation, logging, validation, and optimizer steps
+		      are called indirectly by the framework.
+		\item For small models or assignments, the class structure can feel more
+		      complex than a manual loop. One has to learn the expected hooks,
+		      the \texttt{LightningModule}/\texttt{LightningDataModule}
+		      separation, and the correct metric names and callback interfaces.
+		      Small mistakes in these conventions can be harder to spot than in
+		      an explicit training loop.
+	\end{itemize}
 \end{answer}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -84,7 +124,17 @@
 
 \section*{Task 5a)}
 \begin{answer}[5cm]
-	% YOUR ANSWER HERE
+	The file \texttt{data/word-embeddings.txt} contains pretrained GloVe word
+	embeddings. Each line corresponds to one token: the first entry is the word,
+	and the remaining 100 entries are floating point numbers forming its
+	embedding vector. For example, common words such as \texttt{the},
+	\texttt{of}, and \texttt{to} appear with their 100-dimensional vectors.
+
+	These vectors encode distributional semantic information learned from a
+	large text corpus: words used in similar contexts receive similar vectors.
+	In this assignment, the file can be used to initialize the model's
+	\texttt{nn.Embedding} layer instead of starting all word embeddings from
+	random values.
 \end{answer}
 
 \section*{Task 5b)}
