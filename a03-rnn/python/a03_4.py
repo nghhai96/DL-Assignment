@@ -54,6 +54,7 @@ with torch.no_grad():
     out = model(reviews)
 
 print(out)
+print(tuple(t.shape for t in out))
 
 # Should give you something such as (conrete numbers may differ):
 # (
@@ -67,6 +68,13 @@ print(out)
 # %%
 # Initialize the trainer.
 # TODO: YOUR CODE HERE
+logger = TensorBoardLogger('logs', name = 'simple_lstm')
+trainer = Trainer(
+    logger=logger,
+    max_epochs=n_epochs,
+    check_val_every_n_epoch=1,
+    gradient_clip_val=3,
+)
 
 # %%
 # Train the model.
@@ -74,6 +82,9 @@ trainer.fit(model, datamodule=dm)
 
 # Result after 10 epochs (roughly):
 # val_loss=0.793, val_acc=0.726, train_acc=0.956
+
+# %%
+trainer.callback_metrics
 
 # %%
 # Evaluate.

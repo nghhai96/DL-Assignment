@@ -61,10 +61,19 @@ _ = tsne_vocab(glove_embeddings, torch.arange(100), colors=[0] * 50 + [1] * 50)
 plt.gcf().savefig("task5b_glove_tsne_first100_colored.png", dpi=300, bbox_inches="tight")
 
 # %%
-# Explore the same first 100 embeddings with cosine similarities.
+# TODO: Your code here (Task 5b: cosine-similarity visualization)
+# Explore selected GloVe embeddings with cosine similarities.
 import torch.nn.functional as F
 
-token_ids = torch.arange(100, device=DEVICE)
+selected_words = [
+    "movie", "film",
+    "don", "great", "bad",
+    "br", "ts",
+    "me", "my",
+]
+selected_words = [word for word in selected_words if word in vocab.get_stoi()]
+token_ids = torch.tensor([vocab[word] for word in selected_words], device=DEVICE)
+
 embeddings = glove_embeddings.weight.data[token_ids]
 embeddings = F.normalize(embeddings, dim=1)
 similarities = embeddings @ embeddings.T
@@ -75,9 +84,9 @@ plt.imshow(similarities.cpu(), cmap="coolwarm", vmin=-1, vmax=1)
 plt.colorbar(label="Cosine similarity")
 plt.xticks(range(len(token_labels)), token_labels, rotation=90, fontsize=6)
 plt.yticks(range(len(token_labels)), token_labels, fontsize=6)
-plt.title("Cosine similarity matrix for first 100 vocabulary embeddings")
+plt.title("Cosine similarity matrix for selected vocabulary embeddings")
 plt.tight_layout()
-plt.savefig("task5b_glove_cosine_first100.png", dpi=300, bbox_inches="tight")
+plt.savefig("task5b_glove_cosine_selected_words.png", dpi=300, bbox_inches="tight")
 plt.show()
 
 # %% [markdown]
@@ -93,6 +102,7 @@ n_epochs = 10
 cell_dropout = 0.0
 
 # %%
+# TODO: Your code here (Task 5c: train plain LSTM)
 model = LitSimpleLSTM(vocab_size, embedding_dim, hidden_dim, num_layers, cell_dropout)
 dataset = ReviewsDataset(use_vocab=True)
 dm = ReviewsDataModule(dataset)
@@ -100,10 +110,10 @@ dm = ReviewsDataModule(dataset)
 # Train a plain model so that it reaches a train accuracy of >0.9.
 logger = TensorBoardLogger("logs", name="task5c_plain_lstm")
 trainer = Trainer(
-    max_epochs=n_epochs,
-    gradient_clip_val=3,
-    check_val_every_n_epoch=1,
     logger=logger,
+    max_epochs=n_epochs,
+    check_val_every_n_epoch=1,
+    gradient_clip_val=3,
 )
 
 trainer.fit(model, datamodule=dm)
@@ -133,6 +143,7 @@ plt.gcf().savefig("task5c_plain_val_thought_tsne.png", dpi=300, bbox_inches="tig
 # ### Task 5d
 
 # %%
+# TODO: Your code here (Task 5d: GloVe initialization with finetuning)
 # Initialize the model with *p*re-trained embeddings with *f*inetuning, then
 # train.
 model_pf = LitSimpleLSTM(
@@ -171,6 +182,7 @@ plt.gcf().savefig("task5d_glove_finetune_val_thought_tsne.png", dpi=300, bbox_in
 # ### Task 5e
 
 # %%
+# TODO: Your code here (Task 5e: GloVe initialization without finetuning)
 # Initialize the model with *p*re-trained embeddings without finetuning, then
 # train.
 model_p = LitSimpleLSTM(vocab_size, embedding_dim, hidden_dim, num_layers, cell_dropout)
